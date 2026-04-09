@@ -1,6 +1,8 @@
 name: Remote Build Docker
 on:
   workflow_dispatch: # Vous permet de lancer le build manuellement d'un clic
+  schedule:
+    - cron: '0 0 * * *'
 
 jobs:
   build-external:
@@ -13,7 +15,6 @@ jobs:
       - name: Checkout de l'autre repo
         uses: actions/checkout@v4
         with:
-          # C'est ICI que vous mettez le repo cible (ex: torvalds/linux)
           repository: 'slopus/happy' 
           ref: 'main' # Ou 'master'
 
@@ -29,5 +30,4 @@ jobs:
         with:
           context: .
           push: true
-          # L'image sera sauvegardée sur VOTRE compte
-          tags: ghcr.io/${{ github.repository_owner }}/image-extraite:latest
+          tags: ghcr.io/${{ github.repository_owner }}/happy-server:latest
