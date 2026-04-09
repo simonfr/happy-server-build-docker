@@ -42,5 +42,5 @@ jobs:
           file: ${{ matrix.dockerfile_path }}
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner liquor }}/${{ matrix.image_name }}:latest
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.image_name }}:latest
             ghcr.io/${{ github.repository_owner }}/${{ matrix.image_name }}:${{ github.sha }}
