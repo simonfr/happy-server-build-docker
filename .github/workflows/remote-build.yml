@@ -1,22 +1,32 @@
-name: Remote Build Docker
+name: Multi-Image Auto Build
 on:
-  workflow_dispatch: # Vous permet de lancer le build manuellement d'un clic
+  workflow_dispatch:
   schedule:
     - cron: '0 0 * * *'
 
 jobs:
-  build-external:
+  build-and-push:
     runs-on: ubuntu-latest
     permissions:
       packages: write
       contents: read
 
+    strategy:
+      matrix:
+        include:
+          - image_name: "happy"
+            dockerfile_path: "./Dockerfile"
+          - image_name: "happy-server"
+            dockerfile_path: "Dockerfile.server"
+          - image_name: "happy-webapp"
+            dockerfile_path: "Dockerfile.webapp"
+
     steps:
-      - name: Checkout de l'autre repo
+      - name: Checkout du code source distant
         uses: actions/checkout@v4
         with:
-          repository: 'slopus/happy' 
-          ref: 'main' # Ou 'master'
+          repository: 'slopus/happy'
+          ref: 'main'
 
       - name: Connexion à GHCR
         uses: docker/login-action@v3
@@ -25,9 +35,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and Push
+      - name: Build et Push
         uses: docker/build-push-action@v5
         with:
           context: .
+          file: ${{ matrix.dockerfile_path }}
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/happy-server:latest
+          tags: |
+            ghcr.io/${{ github.repository_owner liquor }}/${{ matrix.image_name }}:latest
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.image_name }}:${{ github.sha }}
